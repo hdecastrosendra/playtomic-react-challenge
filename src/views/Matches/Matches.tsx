@@ -72,7 +72,6 @@ export function Matches(props: MatchesProps) {
         const fetchedMatches = res.data
         totalMatches.push(...fetchedMatches)
 
-        // Check if we've fetched all matches
         if (fetchedMatches.length < batchSize) {
           hasMoreMatches = false
         } else {
@@ -86,6 +85,79 @@ export function Matches(props: MatchesProps) {
       throw error
     }
   }, [fetcher])
+
+  const convertMatchesToCSV = useCallback((matches: Match[]): string => {
+    const headers = [
+      'Match ID',
+      'Venue ID',
+      'Court ID',
+      'Sport',
+      'Start Date',
+      'End Date',
+      'Team 1 Players',
+      'Team 2 Players',
+    ].join(',')
+
+    const rows = matches.map(match => {
+      const team1Players = match.teams[0]?.players.map(p => p.displayName).join('; ') || ''
+      const team2Players = match.teams[1]?.players.map(p => p.displayName).join('; ') || ''
+
+      return [
+        match.matchId,
+        match.venueId,
+        match.courtId,
+        match.sport,
+        match.startDate,
+        match.endDate,
+        `"${team1Players}"`,
+        `"${team2Players}"`,
+      ].join(',')
+    })
+
+    return [headers, ...rows].join('\n')
+  }, [])
+
+  const createAndTriggerDownload = useCallback((csv: string) => {
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+
+    const filename = `playtomic-matches-${new Date().toISOString().split('T')[0]}.csv`
+    link.setAttribute('href', url)
+    link.setAttribute('download', filename)
+
+    document.body.appendChild(link)
+    link.click()
+
+    setTimeout(() => {
+      document.body.removeChild(link)
+      URL.revokeObjectURL(url)
+    }, 100)
+  }, [])
+
+  const downloadMatches = useCallback(async () => {
+    try {
+      setIsDownloading(true)
+
+      const allMatches = await fetchAllMatches()
+
+      const csv = convertMatchesToCSV(allMatches)
+
+      createAndTriggerDownload(csv)
+
+      setIsDownloading(false)
+    } catch (error) {
+      console.error('Error downloading matches:', error)
+      setIsDownloading(false)
+      alert('Failed to download matches. Please try again.')
+    }
+  }, [fetchAllMatches, convertMatchesToCSV, createAndTriggerDownload])
+
+  const handleDownloadClick = useCallback(() => {
+    downloadMatches().catch(error => {
+      console.error('Error in downloadMatches:', error)
+    })
+  }, [downloadMatches])
 
   return (
     <Stack {...otherProps}>
