@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 import useSWR from 'swr'
 import Avatar from '@mui/material/Avatar'
 import AvatarGroup from '@mui/material/AvatarGroup'
@@ -51,6 +51,41 @@ export function Matches(props: MatchesProps) {
   )
   const matches: Match[] = query.data.matches
   const total: number = query.data.total
+
+  const fetchAllMatches = useCallback(async (): Promise<Match[]> => {
+    const batchSize = 10 // API limit is 10 matches per request
+    const totalMatches = []
+    let currentPage = 0
+    let hasMoreMatches = true
+
+    try {
+      while (hasMoreMatches) {
+        const res = await fetcher('GET /v1/matches', {
+          page: currentPage,
+          size: batchSize,
+        })
+
+        if (!res.ok) {
+          throw new Error(res.data.message)
+        }
+
+        const fetchedMatches = res.data
+        totalMatches.push(...fetchedMatches)
+
+        // Check if we've fetched all matches
+        if (fetchedMatches.length < batchSize) {
+          hasMoreMatches = false
+        } else {
+          currentPage++
+        }
+      }
+
+      return totalMatches
+    } catch (error) {
+      console.error('Error fetching matches:', error)
+      throw error
+    }
+  }, [fetcher])
 
   return (
     <Stack {...otherProps}>
