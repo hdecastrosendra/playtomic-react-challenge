@@ -1,0 +1,9 @@
+# Archivos generados
+node_modules
+dist
+build
+coverage
+
+# Archivos de configuración
+package-lock.json
+yarn.lock

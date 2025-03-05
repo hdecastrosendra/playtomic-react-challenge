@@ -34,7 +34,7 @@ function parseEndpoint(endpoint: string): [Method, string] {
 }
 
 /**
- * Merges all the provided header-like values into a single {@link Headers} instance. 
+ * Merges all the provided header-like values into a single {@link Headers} instance.
  */
 function mergeHeaders(...headers: (HeadersInit | null | undefined)[]): Headers {
   const result = new Headers()
@@ -53,10 +53,10 @@ function mergeHeaders(...headers: (HeadersInit | null | undefined)[]): Headers {
 /**
  * Given an API pathname and a set of params; returns a **path** suitable for
  * a network request.
- * 
+ *
  * Any pathname params (i.e.: values wrapped in brackets such as `{matchId}`) will
  * be replaced its value on params.
- * 
+ *
  * @throws {TypeError} a pathname-param name is not included in `params`
  */
 function compilePath(pathname: string, params: URLSearchParams): string {
@@ -65,17 +65,16 @@ function compilePath(pathname: string, params: URLSearchParams): string {
   }
 
   const resultSearchParams = new URLSearchParams(params)
-  const resultPathname = pathname
-    .replace(/\{(.+)\}/, (_: unknown, paramName: string) => {
-      const value = resultSearchParams.get(paramName)
+  const resultPathname = pathname.replace(/\{(.+)\}/, (_: unknown, paramName: string) => {
+    const value = resultSearchParams.get(paramName)
 
-      if (!value) {
-        throw new TypeError(`Missing param ${paramName} while compiling ${pathname}`)
-      }
+    if (!value) {
+      throw new TypeError(`Missing param ${paramName} while compiling ${pathname}`)
+    }
 
-      resultSearchParams.delete(paramName)
-      return value
-    })
+    resultSearchParams.delete(paramName)
+    return value
+  })
 
   return resultSearchParams.size > 0
     ? `${resultPathname}?${resultSearchParams.toString()}`

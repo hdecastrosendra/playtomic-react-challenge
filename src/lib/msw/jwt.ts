@@ -10,16 +10,16 @@
  *
  * This is a non-exhaustive list and includes just the ones we need for this
  * project!
- * 
+ *
  * @see https://auth0.com/docs/secure/tokens/json-web-tokens/json-web-token-claims
  * @see https://www.iana.org/assignments/jwt/jwt.xhtml#claims
  */
 interface JWTClaims {
-  exp?: number,
-  iat?: number,
+  exp?: number
+  iat?: number
   jti?: string
-  sub?: string,
-  [customClaims: string]: string | number | undefined,
+  sub?: string
+  [customClaims: string]: string | number | undefined
 }
 
 /**
@@ -41,15 +41,11 @@ function parse(token: string): unknown[] {
  */
 async function sign(payload: JWTClaims): Promise<string> {
   const header = {
-    alg: "HS256" as const,
-    typ: "JWT"
+    alg: 'HS256' as const,
+    typ: 'JWT',
   }
 
-  const token = serialize(
-    header,
-    payload,
-    serialize('not-a-real-signature'),
-  )
+  const token = serialize(header, payload, serialize('not-a-real-signature'))
 
   return Promise.resolve(token)
 }
@@ -58,7 +54,9 @@ async function sign(payload: JWTClaims): Promise<string> {
  * Decodes and parses the provided token into its parts: header, payload and signature.
  * IMPORTANT: This function does not verify the signature of the token!
  */
-async function decode(token: string): Promise<{ header: unknown, payload: JWTClaims, signature: unknown }> {
+async function decode(
+  token: string
+): Promise<{ header: unknown; payload: JWTClaims; signature: unknown }> {
   const [header, payload, signature] = parse(token)
   const parsedToken = {
     header: header ?? {},

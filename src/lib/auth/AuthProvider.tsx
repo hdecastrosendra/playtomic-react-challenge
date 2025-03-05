@@ -24,9 +24,7 @@ interface AuthProviderProps extends AuthInitializeConfig {
 function AuthProvider(props: AuthProviderProps): JSX.Element {
   const { initialTokens, onAuthChange, children } = props
 
-  return (
-    <>{children}</>
-  )
+  return <>{children}</>
 }
 
 export { AuthProvider, type AuthProviderProps }

@@ -7,7 +7,7 @@ async function enableMocking() {
   if (process.env.NODE_ENV !== 'development') {
     return
   }
- 
+
   const { worker } = await import('./lib/msw/browser')
 
   return worker.start({
@@ -15,9 +15,8 @@ async function enableMocking() {
     quiet: false,
   })
 }
- 
-enableMocking()
-.then(
+
+enableMocking().then(
   () => {
     const root = ReactDOM.createRoot(
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- yes we know this is unsafe
@@ -29,7 +28,7 @@ enableMocking()
       </React.StrictMode>
     )
   },
-  (error) => {
+  error => {
     console.error('Error while initializing mock server', error)
-  },
+  }
 )

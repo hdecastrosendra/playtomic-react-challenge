@@ -32,17 +32,14 @@ describe('mergeHeaders', () => {
   /**
    * Transform a {@link Headers} instance into a `expect(...)` friendly value
    */
-  const serializeHeaders = (headers: Headers): [string,string][] =>
-    Array.from(headers.entries())
+  const serializeHeaders = (headers: Headers): [string, string][] => Array.from(headers.entries())
 
   test('merges different header-compatible values into a single Headers', () => {
     expect(
       serializeHeaders(
-        mergeHeaders(
-          new Headers({ header01: 'value01' }),
-          [['header02', 'value02']],
-          { header03: 'value03' },
-        )
+        mergeHeaders(new Headers({ header01: 'value01' }), [['header02', 'value02']], {
+          header03: 'value03',
+        })
       )
     ).toEqual([
       ['header01', 'value01'],
@@ -53,15 +50,8 @@ describe('mergeHeaders', () => {
 
   test('colliding header values are solved to the right-most value', () => {
     expect(
-      serializeHeaders(
-        mergeHeaders(
-          [['header02', 'value02_A']],
-          [['header02', 'value02_B']],
-        )
-      )
-    ).toEqual([
-      ['header02', 'value02_B'],
-    ])
+      serializeHeaders(mergeHeaders([['header02', 'value02_A']], [['header02', 'value02_B']]))
+    ).toEqual([['header02', 'value02_B']])
   })
 })
 
@@ -75,9 +65,7 @@ describe('parseEndpoint', () => {
   })
 
   test('throws for a non-endpoint string', () => {
-    expect(() => parseEndpoint('')).toThrowError(
-      'Not a valid endpoint string'
-    )
+    expect(() => parseEndpoint('')).toThrowError('Not a valid endpoint string')
   })
 
   test('throws for a non-valid method string', () => {
@@ -92,4 +80,3 @@ describe('parseEndpoint', () => {
     )
   })
 })
-

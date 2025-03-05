@@ -28,7 +28,13 @@ export function Matches(props: MatchesProps) {
   const fetcher = useApiFetcher()
   const query = useSWR(
     { page, size },
-    async ({ page, size }: { page: number, size: number}): Promise<{ matches: Match[], total: number }> => {
+    async ({
+      page,
+      size,
+    }: {
+      page: number
+      size: number
+    }): Promise<{ matches: Match[]; total: number }> => {
       const res = await fetcher('GET /v1/matches', { page, size })
 
       if (!res.ok) {
@@ -39,7 +45,7 @@ export function Matches(props: MatchesProps) {
       const total = totalCount ? Number.parseInt(totalCount) : res.data.length
       return { matches: res.data, total }
     },
-    { keepPreviousData: true, suspense: true },
+    { keepPreviousData: true, suspense: true }
   )
   const matches: Match[] = query.data.matches
   const total: number = query.data.total
@@ -49,7 +55,9 @@ export function Matches(props: MatchesProps) {
       <Stack direction="row" marginBottom={2} justifyContent="space-between" alignItems="center">
         <Typography variant="h2">Matches</Typography>
         <Stack direction="row" justifyContent="space-between">
-          <Button size="small" onClick={onLogoutRequest}>Logout</Button>
+          <Button size="small" onClick={onLogoutRequest}>
+            Logout
+          </Button>
         </Stack>
       </Stack>
       <TableContainer component={Paper}>
@@ -64,7 +72,7 @@ export function Matches(props: MatchesProps) {
             </TableRow>
           </TableHead>
           <TableBody>
-            {matches.map((match) => {
+            {matches.map(match => {
               // Remember, match dates look like: 2024-01-04T09:00Z
               const startDate = match.startDate.substring(0, 10)
               const startTime = match.startDate.substring(11, 16)
@@ -80,24 +88,32 @@ export function Matches(props: MatchesProps) {
                   <TableCell>{endTime}</TableCell>
                   <TableCell align="left">
                     <AvatarGroup max={4} sx={{ flexDirection: 'row' }}>
-                      {match.teams.flatMap(team => team.players).map(player => (
-                        <Avatar key={player.userId} sx={{ width: 28, height: 28 }} alt={player.displayName} src={player.pictureURL ?? undefined} />
-                      ))}
+                      {match.teams
+                        .flatMap(team => team.players)
+                        .map(player => (
+                          <Avatar
+                            key={player.userId}
+                            sx={{ width: 28, height: 28 }}
+                            alt={player.displayName}
+                            src={player.pictureURL ?? undefined}
+                          />
+                        ))}
                     </AvatarGroup>
                   </TableCell>
                 </TableRow>
-              )}
-            )}
+              )
+            })}
           </TableBody>
         </Table>
-        
       </TableContainer>
       <TablePagination
         component="div"
         count={total}
         page={page}
         rowsPerPage={size}
-        onPageChange={(_, page) => { setPage(page) }}
+        onPageChange={(_, page) => {
+          setPage(page)
+        }}
         onRowsPerPageChange={ev => {
           setSize(parseInt(ev.target.value, 10))
           setPage(0)

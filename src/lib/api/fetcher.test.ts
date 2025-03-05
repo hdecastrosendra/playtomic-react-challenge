@@ -8,7 +8,7 @@ const server = setupServer(
   http.all('*', async ({ request }) => {
     const url = new URL(request.url)
     const req = {
-      method :request.method,
+      method: request.method,
       pathname: url.pathname,
       searchParams: Object.fromEntries(url.searchParams.entries()),
       headers: Object.fromEntries(request.headers.entries()),
@@ -20,9 +20,15 @@ const server = setupServer(
   })
 )
 
-beforeAll(() => { server.listen() })
-afterEach(() => { server.resetHandlers() })
-afterAll(() => { server.close() })
+beforeAll(() => {
+  server.listen()
+})
+afterEach(() => {
+  server.resetHandlers()
+})
+afterAll(() => {
+  server.close()
+})
 
 test('can perform a GET request', async () => {
   const fetch = createApiFetcher()
@@ -57,9 +63,11 @@ test('baseURL can be used to add a prefix to the request pathname', async () => 
   const fetch = createApiFetcher({ baseURL })
   await fetch('GET /v1/users/me', {})
 
-  expect(serverSpy).toHaveBeenCalledWith(expect.objectContaining({
-    pathname: '/api/v1/users/me',
-  }))
+  expect(serverSpy).toHaveBeenCalledWith(
+    expect.objectContaining({
+      pathname: '/api/v1/users/me',
+    })
+  )
 })
 
 test('defaultHeaders are appended to every request', async () => {
@@ -110,7 +118,7 @@ describe('types', () => {
   type ResponseError = { message: string }
 
   test('GET /v1/matches', async () => {
-    type Arg = { size?: number, page?: number }
+    type Arg = { size?: number; page?: number }
     const arg: Arg = {}
 
     const fetch = createApiFetcher()
@@ -140,17 +148,17 @@ describe('types', () => {
   })
 
   test('POST /v3/auth/login', async () => {
-    type Arg = { data: { email: string, password: string } }
+    type Arg = { data: { email: string; password: string } }
     const arg: Arg = { data: { email: 'email', password: 'password' } }
 
     const fetch = createApiFetcher()
     const res = await fetch('POST /v3/auth/login', arg)
 
     type ResponseOk = {
-      accessToken: string;
-      accessTokenExpiresAt: string;
-      refreshToken: string;
-      refreshTokenExpiresAt: string;
+      accessToken: string
+      accessTokenExpiresAt: string
+      refreshToken: string
+      refreshTokenExpiresAt: string
     }
     expectTypeOf(res.data).toEqualTypeOf<ResponseOk | ResponseError>()
   })
@@ -163,10 +171,10 @@ describe('types', () => {
     const res = await fetch('POST /v3/auth/refresh', arg)
 
     type ResponseOk = {
-      accessToken: string;
-      accessTokenExpiresAt: string;
-      refreshToken: string;
-      refreshTokenExpiresAt: string;
+      accessToken: string
+      accessTokenExpiresAt: string
+      refreshToken: string
+      refreshTokenExpiresAt: string
     }
     expectTypeOf(res.data).toEqualTypeOf<ResponseOk | ResponseError>()
   })

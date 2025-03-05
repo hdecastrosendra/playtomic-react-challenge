@@ -24,20 +24,19 @@ interface ApiFetcherConfiguration {
 /**
  * Extracts the request params and request data for a given endpoint and combines
  * them in a single object.
- * 
+ *
  * Params (pathname or search) are passed as the root-level properties of the object
  * while request body is wrapped in a `data` property.
  */
-type ApiFetcherArg<E extends Endpoint> =
-  E extends KnownEndpoints
-    ? InferEndpointParams<E> extends never
-      ? InferEndpointData<E> extends never
-        ? /* no params, no data */ undefined | null | Record<string, never>
-        : /* no params, yes data */ { data: InferEndpointData<E> }
-      : InferEndpointData<E> extends never
-        ? /* yes params, no data */ InferEndpointParams<E>
-        : /* yes params, yes data */ InferEndpointParams<E> & { data: InferEndpointData<E> }
-    : unknown
+type ApiFetcherArg<E extends Endpoint> = E extends KnownEndpoints
+  ? InferEndpointParams<E> extends never
+    ? InferEndpointData<E> extends never
+      ? /* no params, no data */ undefined | null | Record<string, never>
+      : /* no params, yes data */ { data: InferEndpointData<E> }
+    : InferEndpointData<E> extends never
+    ? /* yes params, no data */ InferEndpointParams<E>
+    : /* yes params, yes data */ InferEndpointParams<E> & { data: InferEndpointData<E> }
+  : unknown
 
 interface ApiFetcherOptions {
   /**
@@ -50,7 +49,7 @@ interface ApiFetcher {
   <E extends KnownEndpoints>(
     endpoint: E,
     arg: ApiFetcherArg<E>,
-    options?: ApiFetcherOptions,
+    options?: ApiFetcherOptions
   ): Promise<EndpointResponse<InferEndpointResponse<E>>>
 
   /**
@@ -59,34 +58,30 @@ interface ApiFetcher {
   (
     endpoint: `[unsafe] ${Endpoint}`,
     arg: Record<string, unknown>,
-    options?: ApiFetcherOptions,
+    options?: ApiFetcherOptions
   ): Promise<EndpointResponse>
 }
 
 /**
  * Returns a type-safe fetch function; allowing you to call the API and automatically
  * type the response based on the endpoint being called.
- * 
+ *
  * See {@link EndpointMeta} for more information on what are the supported endpoints,
  * request params, request body, and response.
  */
 function createApiFetcher(configuration?: ApiFetcherConfiguration): ApiFetcher {
-  const {
-    baseURL,
-    defaultHeaders,
-  } = configuration ?? {}
+  const { baseURL, defaultHeaders } = configuration ?? {}
 
   return async <E extends KnownEndpoints>(
     endpoint: E,
     arg: ApiFetcherArg<E>,
-    options?: ApiFetcherOptions,
+    options?: ApiFetcherOptions
   ): Promise<EndpointResponse<InferEndpointResponse<E>>> => {
     const [method, pathname] = parseEndpoint(endpoint)
     const headers = mergeHeaders(defaultHeaders, options?.headers)
     const { data: body, ...params } = arg as Record<string, unknown>
     const searchParams = new URLSearchParams(
-      Object.entries(params)
-        .map(([paramName, paramValue]) => [paramName, String(paramValue)])
+      Object.entries(params).map(([paramName, paramValue]) => [paramName, String(paramValue)])
     )
     const path = compilePath(pathname, searchParams)
 
@@ -103,16 +98,16 @@ function createApiFetcher(configuration?: ApiFetcherConfiguration): ApiFetcher {
     })
 
     // Yes, we know this is an unsafe cast.
-    const data = await response.json() as InferEndpointResponse<E>
+    const data = (await response.json()) as InferEndpointResponse<E>
 
     const result: EndpointResponse<InferEndpointResponse<E>> = {
       status: response.status,
       ok: response.ok,
       headers: response.headers,
       /* eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any --
-      * FIXME: We need this any casting because of the response/error discriminate typing;
-      * Let's find a way to better type this in the future if possible.
-      */
+       * FIXME: We need this any casting because of the response/error discriminate typing;
+       * Let's find a way to better type this in the future if possible.
+       */
       data: data as any,
     }
 
@@ -120,10 +115,4 @@ function createApiFetcher(configuration?: ApiFetcherConfiguration): ApiFetcher {
   }
 }
 
-
-export {
-  createApiFetcher,
-  type ApiFetcher,
-  type ApiFetcherArg,
-  type ApiFetcherOptions,
-}
+export { createApiFetcher, type ApiFetcher, type ApiFetcherArg, type ApiFetcherOptions }

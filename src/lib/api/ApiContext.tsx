@@ -29,14 +29,15 @@ interface ApiContextProviderProps extends Partial<ApiContextValue> {
 function ApiContextProvider(props: ApiContextProviderProps) {
   const { defaultHeaders, baseURL, ...otherProps } = props
   const parentValue = useContext(ApiContext)
-  const value = useMemo<ApiContextValue>(() => ({
-    baseURL: baseURL ?? parentValue.baseURL,
-    defaultHeaders: mergeHeaders(parentValue.defaultHeaders, defaultHeaders)
-  }), [parentValue, defaultHeaders, baseURL])
-
-  return (
-    <ApiContext.Provider value={value} {...otherProps} />
+  const value = useMemo<ApiContextValue>(
+    () => ({
+      baseURL: baseURL ?? parentValue.baseURL,
+      defaultHeaders: mergeHeaders(parentValue.defaultHeaders, defaultHeaders),
+    }),
+    [parentValue, defaultHeaders, baseURL]
   )
+
+  return <ApiContext.Provider value={value} {...otherProps} />
 }
 
 export { ApiContext, ApiContextProvider }

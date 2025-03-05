@@ -15,6 +15,7 @@ Returns a paginated list of matches. See [api-types](../api-types/index.ts) for 
 The response also includes a `Total` header indicating the total amount of available in the API.
 
 **Example request**
+
 ```
 GET /v1/matches?size=5&page=0
 Authorization: Bearer eyJhbGciOiJIUzI1N...
@@ -23,6 +24,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1N...
 **Example responses**
 
 Successful request
+
 ```
 HTTP/1.1 200 OK
 Content-Type: application/json
@@ -45,6 +47,7 @@ Total: 23
 ```
 
 Missing/wrong authorization credentials
+
 ```
 HTTP/1.1 403 OK
 Content-Type: application/json
@@ -58,6 +61,7 @@ Total: 23
 Returns a paginated list of matches. See [api-types](../api-types/index.ts) for a detailed type-definition of the `Match` entity.
 
 **Example request**
+
 ```
 GET /v1/matches/9aac9261-91c0-4ee5-9be1-804235a27375
 Authorization: Bearer eyJhbGciOiJIUzI1N...
@@ -66,6 +70,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1N...
 **Example responses**
 
 Successful request
+
 ```
 HTTP/1.1 200 OK
 Content-Type: application/json
@@ -84,6 +89,7 @@ Content-Type: application/json
 ```
 
 Missing/wrong authorization credentials
+
 ```
 HTTP/1.1 403 OK
 Content-Type: application/json
@@ -97,6 +103,7 @@ Total: 23
 Returns the currently authenticated user information. See [api-types](../api-types/index.ts) for a detailed type-definition of the `User` entity.
 
 **Example request**
+
 ```
 GET /v1/users/me
 Authorization: Bearer eyJhbGciOiJIUzI1N...
@@ -105,6 +112,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1N...
 **Example responses**
 
 Successful request
+
 ```
 HTTP/1.1 200 OK
 Content-Type: application/json
@@ -118,6 +126,7 @@ Content-Type: application/json
 ```
 
 Missing/wrong authorization credentials
+
 ```
 HTTP/1.1 403 OK
 Content-Type: application/json
@@ -126,12 +135,12 @@ Total: 23
 { "message": "Missing authorization header" }
 ```
 
-
 ### `POST /v3/auth/login`
 
 Request a new set of tokens (access and refresh) for the user identified by the provided credentials. The returned `authToken` can be used to access the rest of the API for **one hour**. The returned `refreshToken` can be used to create a new `authToken` without requiring user credentials for **7 days**.
 
 **Example request**
+
 ```
 POST /v3/auth/login
 Content-Type: application/json
@@ -145,6 +154,7 @@ Content-Type: application/json
 **Example responses**
 
 Successful login
+
 ```
 HTTP/1.1 200 OK
 Content-Type: application/json
@@ -158,6 +168,7 @@ Content-Type: application/json
 ```
 
 Non-registered email
+
 ```
 HTTP/1.1 401 OK
 Content-Type: application/json
@@ -168,6 +179,7 @@ Content-Type: application/json
 ```
 
 Wrong credentials
+
 ```
 HTTP/1.1 401 OK
 Content-Type: application/json
@@ -182,6 +194,7 @@ Content-Type: application/json
 Requests a new `accessToken` with an existing refresh token. The response will include a **new** `accessToken` lasting one hour and **the same** refresh token you passed.
 
 **Example request**
+
 ```
 POST /v3/auth/refresh
 Content-Type: application/json
@@ -194,6 +207,7 @@ Content-Type: application/json
 **Example responses**
 
 Successful token refresh
+
 ```
 HTTP/1.1 200 OK
 Content-Type: application/json
@@ -207,6 +221,7 @@ Content-Type: application/json
 ```
 
 Wrong/expired refresh token
+
 ```
 HTTP/1.1 401 OK
 Content-Type: application/json

@@ -28,27 +28,26 @@ interface Auth {
   /**
    * Attempts to log in with the provided credentials. Returns a promise that resolves
    * if the credentials are valid and the user has been successfully authenticated.
-   * 
+   *
    * When the promise resolves; it cause an update on {@link Auth.currentUser}
    * and {@link Auth.tokens}.
-   * 
+   *
    * Internally; this method will call the auth endpoint `POST /v3/auth/login` with
    * the provided email and password to retrieve and store {@link Auth.tokens}. If
    * the auth call is successful, it does an extra call to `GET /v1/users/me`
    * with the received access token to load the {@link Auth.currentUser}
-   * 
+   *
    * @throws {Error} if there is a user already logged in
    * @throws {Error} if credentials are wrong
    */
-  login(credentials: { email: string, password: string }): Promise<void>
-
+  login(credentials: { email: string; password: string }): Promise<void>
 
   /**
    * Logs out the currently logged-in.
    *
    * When the promise resolves; it will cause an update on {@link Auth.currentUser}
    * and {@link Auth.tokens}; setting them to `null`.
-   * 
+   *
    * @throws {Error} if there is no user logged in
    */
   logout(): Promise<void>
@@ -59,9 +58,9 @@ interface AuthInitializeConfig {
    * Allows initializing the Auth state with a previously stored set of tokens. This allows
    * persisting a user "session" so the next time they come around they don't need to re-enter
    * their credentials.
-   * 
+   *
    * If `null` or `undefined` is provided here (or a Promise that resolves into any of those);
-   * the auth state will be initialized as anonymous (meaning user is not logged in yet). 
+   * the auth state will be initialized as anonymous (meaning user is not logged in yet).
    */
   initialTokens?: undefined | null | TokensData | Promise<TokensData | undefined | null>
 
@@ -69,7 +68,7 @@ interface AuthInitializeConfig {
    * Allows listening for auth state changes; allowing other parts of the application to store it.
    * so it can be later used for re-initializing the auth after a refresh via
    * {@link AuthInitializeConfig.initialTokens}.
-   * 
+   *
    * The token might change during runtime of the application on several scenarios:
    *
    * - When the user logs in; this callback is invoked with a freshly created token-set
@@ -105,7 +104,7 @@ interface TokensData {
    * Expiration date of the `access` token. Once expired; the `access` token is no
    * longer valid and a new token needs to be issued by requesting it to the API
    * using the `refresh` token.
-   * 
+   *
    * [ISO DateTime](https://en.wikipedia.org/wiki/ISO_8601) format.
    */
   accessExpiresAt: string
@@ -113,7 +112,7 @@ interface TokensData {
   /**
    * Token allowing the currently logged-in user to "extend" it `access` token; by
    * issuing a new one with a new expiration.
-   * 
+   *
    * This token expires at the date specified by `refreshExpiresAt`.
    */
   refresh: string
@@ -121,13 +120,10 @@ interface TokensData {
   /**
    * Expiration date of the `refresh` token. Once expired; the `refresh` token is no
    * longer valid and the user needs to enter their credentials again.
-   * 
+   *
    * [ISO DateTime](https://en.wikipedia.org/wiki/ISO_8601) format.
    */
   refreshExpiresAt: string
 }
 
-export {
-  type Auth,
-  type AuthInitializeConfig,
-}
+export { type Auth, type AuthInitializeConfig }

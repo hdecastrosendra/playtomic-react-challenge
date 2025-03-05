@@ -8,23 +8,28 @@ import { AuthProvider } from '@/lib/auth'
 import { Login } from './Login'
 import { ApiConfigProvider } from '@/lib/api'
 
-
-beforeAll(() => { server.listen() })
-afterEach(() => { server.resetHandlers() })
-afterAll(() => { server.close() })
+beforeAll(() => {
+  server.listen()
+})
+afterEach(() => {
+  server.resetHandlers()
+})
+afterAll(() => {
+  server.close()
+})
 
 const Wrapper = (props: { children: ReactNode }): ReactElement => (
   <ApiConfigProvider baseURL="/api">
-    <AuthProvider>
-      {props.children}
-    </AuthProvider>
+    <AuthProvider>{props.children}</AuthProvider>
   </ApiConfigProvider>
 )
 
 test('initial values are shown into their inputs', () => {
   const initialEmail = 'alice@playtomic.io'
   const initialPassword = 'MyPassword'
-  render(<Login initialValues={{ email: initialEmail, password: initialPassword }} />, { wrapper: Wrapper })
+  render(<Login initialValues={{ email: initialEmail, password: initialPassword }} />, {
+    wrapper: Wrapper,
+  })
 
   const form = screen.getByRole('form', { name: 'Log in' })
   const email = within(form).getByRole('textbox', { name: 'Email' })
@@ -59,14 +64,16 @@ test('values can be updated in their inputs', async () => {
   })
 })
 
-test('sets the form as aria-busy during submit', async () => {  
+test('sets the form as aria-busy during submit', async () => {
   server.use(
     // We need to add some delay to the server responses so the form has time to
     // actually go through the submitting state
-    http.all('*', () => delay(100)),
+    http.all('*', () => delay(100))
   )
 
-  render(<Login initialValues={{ email: 'alice@playtomic.io', password: 'MyPassword' }}/>, { wrapper: Wrapper })
+  render(<Login initialValues={{ email: 'alice@playtomic.io', password: 'MyPassword' }} />, {
+    wrapper: Wrapper,
+  })
 
   const form = screen.getByRole('form', { name: 'Log in' })
   const loginButton = within(form).getByRole('button', { name: 'Log in' })
@@ -88,13 +95,15 @@ test('passes the form values to the API on submit', async () => {
     })
   )
 
-  render(<Login initialValues={{ email: 'alice@playtomic.io', password: 'MyPassword' }} />, { wrapper: Wrapper })
+  render(<Login initialValues={{ email: 'alice@playtomic.io', password: 'MyPassword' }} />, {
+    wrapper: Wrapper,
+  })
 
-  await userEvent.click(
-    screen.getByRole('button', { name: 'Log in' })
-  )
+  await userEvent.click(screen.getByRole('button', { name: 'Log in' }))
 
-  await waitFor(() => { expect(postV3AuthLogin).toHaveBeenCalled() })
+  await waitFor(() => {
+    expect(postV3AuthLogin).toHaveBeenCalled()
+  })
   expect(postV3AuthLogin).toHaveBeenCalledWith({
     email: 'alice@playtomic.io',
     password: 'MyPassword',
@@ -104,25 +113,22 @@ test('passes the form values to the API on submit', async () => {
 test('shows an alert with any error returned by the API', async () => {
   const loginError = 'Wrong credentials'
   server.use(
-    http.post('/api/v3/auth/login', () => {
-      return HttpResponse.json(
-        { message: loginError },
-        { status: 401 },
-      )
-    }, { once: true })
+    http.post(
+      '/api/v3/auth/login',
+      () => {
+        return HttpResponse.json({ message: loginError }, { status: 401 })
+      },
+      { once: true }
+    )
   )
 
   render(
-    <Login
-      initialValues={{ email: 'alice@playtomic.io', password: 'MySuperSecurePassword' }}
-    />,
-    { wrapper: Wrapper },
+    <Login initialValues={{ email: 'alice@playtomic.io', password: 'MySuperSecurePassword' }} />,
+    { wrapper: Wrapper }
   )
 
-  await userEvent.click(
-    screen.getByRole('button', { name: 'Log in' })
-  )
-  
+  await userEvent.click(screen.getByRole('button', { name: 'Log in' }))
+
   const alert = await screen.findByRole('alert')
   expect(alert).toHaveTextContent(loginError)
 })

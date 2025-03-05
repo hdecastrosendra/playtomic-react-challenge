@@ -23,7 +23,7 @@ export default function App() {
 
 /**
  * Auth-aware router for the app (see {@link useAuth} for more information about the auth state).
- * 
+ *
  * If there is an authenticated user; the app will redirect into a matches table
  * allowing the clubs to consume the information about matches at their facilities.
  *
@@ -40,28 +40,28 @@ function AppRouter() {
     <Router>
       <Switch>
         <Route path="/login">
-          {auth.currentUser
-            ? <Redirect to="/matches" />
-            : <Login initialValues={{ email: 'alice@playtomic.io' }}/>}
-        </Route>
-      
-        <Route path="/matches">
-          {auth.currentUser
-            ? <Matches
-                onLogoutRequest={() => {
-                  auth.logout().catch(error => {
-                    console.error('error while logging out', error)
-                  })
-                }}
-              />
-            : <Redirect to="/login" />}
+          {auth.currentUser ? (
+            <Redirect to="/matches" />
+          ) : (
+            <Login initialValues={{ email: 'alice@playtomic.io' }} />
+          )}
         </Route>
 
-        <Route>
-          {auth.currentUser
-            ? <Redirect to="/matches" />
-            : <Redirect to="/login" />}
+        <Route path="/matches">
+          {auth.currentUser ? (
+            <Matches
+              onLogoutRequest={() => {
+                auth.logout().catch(error => {
+                  console.error('error while logging out', error)
+                })
+              }}
+            />
+          ) : (
+            <Redirect to="/login" />
+          )}
         </Route>
+
+        <Route>{auth.currentUser ? <Redirect to="/matches" /> : <Redirect to="/login" />}</Route>
       </Switch>
     </Router>
   )
@@ -69,7 +69,7 @@ function AppRouter() {
 
 /**
  * Connects the Auth-state (as provided by {@link useAuth}) with the API fetcher.
- * 
+ *
  * This ensures every request fired with `fetcher` in the app includes a proper
  * `Authorization` header; meaning they are properly identified by the API as
  * requested by the currently authenticated users.
@@ -77,9 +77,9 @@ function AppRouter() {
 function ApiAuthConfigProvider(props: { children: ReactNode }) {
   const auth = useAuth()
 
-  const defaultHeaders = useMemo(() =>  {
+  const defaultHeaders = useMemo(() => {
     const headers = new Headers({
-      'x-requested-with': 'playtomic-frontend-tech-task'
+      'x-requested-with': 'playtomic-frontend-tech-task',
     })
 
     if (auth.tokens) {
@@ -89,11 +89,7 @@ function ApiAuthConfigProvider(props: { children: ReactNode }) {
     return headers
   }, [auth.tokens])
 
-  return (
-    <ApiConfigProvider defaultHeaders={defaultHeaders}>
-      {props.children}
-    </ApiConfigProvider>
-  )
+  return <ApiConfigProvider defaultHeaders={defaultHeaders}>{props.children}</ApiConfigProvider>
 }
 
 /**
@@ -109,16 +105,18 @@ function AppAuthProvider(props: { children: ReactNode }) {
   const authStore = useMemo(() => {
     const storage = localForage.createInstance({ name: 'my-app-auth' })
     const isValidTokenSet = (value: unknown): value is TokenSet => {
-      return typeof value === 'object'
-        && value !== null
-        && 'access' in value
-        && typeof value.access === 'string'
-        && 'accessExpiresAt' in value
-        && typeof value.accessExpiresAt === 'string'
-        && 'refresh' in value
-        && typeof value.refresh === 'string'
-        && 'refreshExpiresAt' in value
-        && typeof value.refreshExpiresAt === 'string'
+      return (
+        typeof value === 'object' &&
+        value !== null &&
+        'access' in value &&
+        typeof value.access === 'string' &&
+        'accessExpiresAt' in value &&
+        typeof value.accessExpiresAt === 'string' &&
+        'refresh' in value &&
+        typeof value.refresh === 'string' &&
+        'refreshExpiresAt' in value &&
+        typeof value.refreshExpiresAt === 'string'
+      )
     }
 
     return {
@@ -153,15 +151,15 @@ function AppAuthProvider(props: { children: ReactNode }) {
 
   const initialTokens = useMemo<AuthProviderProps['initialTokens']>(
     () => authStore.get(),
-    [authStore],
+    [authStore]
   )
   const handleAuthRefresh = useCallback<NonNullable<AuthProviderProps['onAuthChange']>>(
-    (tokens) => {
+    tokens => {
       authStore.save(tokens).catch(error => {
         console.error('Failure persisting the auth refresh', error)
       })
     },
-    [authStore],
+    [authStore]
   )
 
   return (

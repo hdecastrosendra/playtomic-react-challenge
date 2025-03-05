@@ -62,7 +62,7 @@ export interface Match {
    * [ISO DateTime](https://en.wikipedia.org/wiki/ISO_8601) string of the instant the match finishes.
    */
   endDate: string
-  
+
   /**
    * Teams playing the match. You can usually expect it to be 2 entries.
    */
