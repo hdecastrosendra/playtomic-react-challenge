@@ -14,6 +14,7 @@ import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
 import Typography from '@mui/material/Typography'
 import Paper from '@mui/material/Paper'
+import CircularProgress from '@mui/material/CircularProgress'
 import { useApiFetcher } from '@/lib/api'
 import { Match } from '@/lib/api-types'
 
@@ -25,6 +26,7 @@ export function Matches(props: MatchesProps) {
   const { onLogoutRequest, ...otherProps } = props
   const [page, setPage] = useState<number>(0)
   const [size, setSize] = useState<number>(10)
+  const [isDownloading, setIsDownloading] = useState<boolean>(false)
   const fetcher = useApiFetcher()
   const query = useSWR(
     { page, size },
@@ -54,7 +56,16 @@ export function Matches(props: MatchesProps) {
     <Stack {...otherProps}>
       <Stack direction="row" marginBottom={2} justifyContent="space-between" alignItems="center">
         <Typography variant="h2">Matches</Typography>
-        <Stack direction="row" justifyContent="space-between">
+        <Stack direction="row" spacing={2} justifyContent="space-between">
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={handleDownloadClick}
+            disabled={isDownloading}
+            startIcon={isDownloading ? <CircularProgress size={20} /> : null}
+          >
+            {isDownloading ? 'Downloading...' : 'Download All Matches'}
+          </Button>
           <Button size="small" onClick={onLogoutRequest}>
             Logout
           </Button>
