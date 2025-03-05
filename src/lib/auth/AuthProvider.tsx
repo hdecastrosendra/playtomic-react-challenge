@@ -1,4 +1,4 @@
-import { ReactNode, useCallback, useMemo, useState } from 'react'
+import { ReactNode, useCallback, useEffect, useMemo, useState } from 'react'
 import { Auth, AuthInitializeConfig, TokensData, UserData } from './types'
 import { AuthContext } from './AuthContext'
 import { useApiFetcher } from '@/lib/api'
@@ -49,6 +49,42 @@ function AuthProvider(props: AuthProviderProps): JSX.Element {
     },
     [fetcher]
   )
+
+  const loadInitialTokens = useCallback(async () => {
+    try {
+      if (!initialTokens) {
+        clearAuthState()
+        return
+      }
+
+      const resolvedTokens = await Promise.resolve(initialTokens)
+
+      if (!resolvedTokens) {
+        clearAuthState()
+        return
+      }
+
+      setTokens(resolvedTokens)
+
+      const userData = await loadUserInfo(resolvedTokens.access)
+
+      if (!userData) {
+        clearAuthState()
+        return
+      }
+
+      setCurrentUser(userData)
+    } catch (error) {
+      console.error('Error loading initial tokens:', error)
+      clearAuthState()
+    }
+  }, [initialTokens, loadUserInfo, clearAuthState])
+
+  useEffect(() => {
+    loadInitialTokens().catch(error => {
+      console.error('Error in loadInitialTokens:', error)
+    })
+  }, [loadInitialTokens])
 
   const login = useCallback(
     async (credentials: { email: string; password: string }): Promise<void> => {
